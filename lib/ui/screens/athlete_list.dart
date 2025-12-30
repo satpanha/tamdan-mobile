@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tamdan/models/athlete.dart';
+import 'package:tamdan/ui/screens/add_athlete.dart';
+import 'package:tamdan/ui/screens/athlete_detail.dart';
 import 'package:tamdan/ui/widgets/athlete_card.dart';
 import 'package:tamdan/utils/mock_data.dart';
 
@@ -64,8 +66,25 @@ class _AthleteListScreenState extends State<AthleteListScreen> {
                       final athlete = _filteredAthletes[index];
                       return AthleteCard(
                         athlete: athlete,
-                        onTap: () {
-                          // TODO: Navigate to details
+                        onTap: () async {
+                          // Navigate to details
+                          final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => AthleteDetailScreen(athlete: athlete),)
+                          );
+                          if ( result is Athlete ){
+                            setState(() {
+                              final index = mockAthletes.indexWhere((a) => a.id == result.id );
+                              if (index != -1 ){
+                                mockAthletes[index] = result;
+                              }
+                              _search(_searchQuery);
+                            });
+                          }
+                          if (result == 'deleted'){
+                            setState(() {
+                              mockAthletes.removeWhere((a) => a.id == athlete.id);
+                              _search(_searchQuery);
+                            });
+                          }
                         },
                       );
                     },
