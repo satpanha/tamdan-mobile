@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tamdan/models/athlete.dart';
-import 'package:tamdan/ui/screens/add_athlete.dart';
+// import 'package:tamdan/ui/screens/add_athlete.dart';
 import 'package:tamdan/ui/screens/athlete_detail.dart';
 import 'package:tamdan/ui/widgets/athlete_card.dart';
 import 'package:tamdan/utils/mock_data.dart';
