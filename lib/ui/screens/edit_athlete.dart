@@ -50,7 +50,7 @@ class _EditAthleteScreenState extends State<EditAthleteScreen> {
         beltLevel: _beltLevel,
         status: _status,
       );
-      Navigator.pop(context, updated);
+      Navigator.pop(context, updated );
     }
   }
 

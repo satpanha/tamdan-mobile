@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:tamdan/models/athlete.dart';
+import 'package:tamdan/ui/screens/edit_athlete.dart';
 
-class AthleteDetailScreen extends StatelessWidget {
+class AthleteDetailScreen extends StatefulWidget {
   final Athlete athlete;
   const AthleteDetailScreen({super.key, required this.athlete});
+
+  @override
+  State<AthleteDetailScreen> createState() => _AthleteDetailScreenState();
+}
+
+class _AthleteDetailScreenState extends State<AthleteDetailScreen> {
+  late Athlete athlete;
+
+  @override
+  void initState() {
+    super.initState();
+    athlete = widget.athlete;
+  }
 
   String _fmt(DateTime d) {
     const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -13,7 +27,14 @@ class AthleteDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Athlete Details')),
+      appBar: AppBar(title: const Text('Athlete Details'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: (){
+          Navigator.pop(context, athlete);
+          },
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -39,7 +60,16 @@ class AthleteDetailScreen extends StatelessWidget {
               children: [
                 ElevatedButton.icon(
                   onPressed: () async {
-                    // TODO: Navigate to EditAthleteScreen and handle result in caller
+                    // Navigate to EditAthleteScreen and handle result in caller
+                    final updatedAthlete = await Navigator.push<Athlete>(
+                      context,
+                      MaterialPageRoute(builder: (_) => EditAthleteScreen(athlete: athlete))
+                    );
+                  if ( updatedAthlete != null ){
+                    setState(() {
+                      athlete = updatedAthlete;
+                    });
+                  }
                   },
                   icon: const Icon(Icons.edit),
                   label: const Text('Edit'),
@@ -51,7 +81,7 @@ class AthleteDetailScreen extends StatelessWidget {
                       context: context,
                       builder: (ctx) => AlertDialog(
                         title: const Text('Delete Athlete?'),
-                        content: Text('Are you sure you want to delete ${athlete.name}?'),
+                        content: Text('Are you sure you want to delete ${widget.athlete.name}?'),
                         actions: [
                           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
                           TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
