@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tamdan/models/athlete.dart';
+import 'package:tamdan/ui/screens/add_athlete.dart';
 // import 'package:tamdan/ui/screens/add_athlete.dart';
 import 'package:tamdan/ui/screens/athlete_detail.dart';
 import 'package:tamdan/ui/widgets/athlete_card.dart';
@@ -94,7 +95,15 @@ class _AthleteListScreenState extends State<AthleteListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          // TODO: Navigate to AddAthlete and await result
+          // Navigate to AddAthlete and await result
+          final newAthelete = await Navigator.push<Athlete>(
+            context,
+            MaterialPageRoute(builder: (_) => AddAthleteScreen())
+          );
+          if ( newAthelete != null ){
+            mockAthletes.add(newAthelete);
+            _search(_searchQuery);
+          }
         },
         child: const Icon(Icons.add),
       ),
