@@ -23,14 +23,28 @@ class _AthleteDetailScreenState extends State<AthleteDetailScreen> {
   }
 
   String _fmt(DateTime d) {
-    const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const m = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     return "${d.day} ${m[d.month - 1]} ${d.year}";
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Athlete Details'),
+      appBar: AppBar(
+        title: const Text('Athlete Details'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: (){
@@ -63,13 +77,15 @@ class _AthleteDetailScreenState extends State<AthleteDetailScreen> {
                     // Navigate to EditAthleteScreen and handle result in caller
                     final updatedAthlete = await Navigator.push<Athlete>(
                       context,
-                      MaterialPageRoute(builder: (_) => EditAthleteScreen(athlete: athlete))
+                      MaterialPageRoute(
+                        builder: (_) => EditAthleteScreen(athlete: athlete),
+                      ),
                     );
-                  if ( updatedAthlete != null ){
-                    setState(() {
-                      athlete = updatedAthlete;
-                    });
-                  }
+                    if (updatedAthlete != null) {
+                      setState(() {
+                        athlete = updatedAthlete;
+                      });
+                    }
                   },
                   icon: Icons.edit,
                   label: 'Edit',
@@ -82,10 +98,18 @@ class _AthleteDetailScreenState extends State<AthleteDetailScreen> {
                       context: context,
                       builder: (ctx) => AlertDialog(
                         title: const Text('Delete Athlete?'),
-                        content: Text('Are you sure you want to delete ${widget.athlete.name}?'),
+                        content: Text(
+                          'Are you sure you want to delete ${widget.athlete.name}?',
+                        ),
                         actions: [
-                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-                          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, false),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, true),
+                            child: const Text('Delete'),
+                          ),
                         ],
                       ),
                     ).then((confirm) {
@@ -100,7 +124,7 @@ class _AthleteDetailScreenState extends State<AthleteDetailScreen> {
                   backgroundColor: Colors.red,
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
