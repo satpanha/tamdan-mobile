@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tamdan/ui/widgets/custom_app_bar.dart';
 
 class TrackingScreen extends StatelessWidget {
   const TrackingScreen({super.key});
@@ -6,7 +7,7 @@ class TrackingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tracking')),
+      appBar: CustomAppBar(title: 'Tracking'),
       body: const Center(child: Text('Tracking feature coming soon')),
     );
   }

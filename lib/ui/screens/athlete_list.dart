@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:tamdan/models/athlete.dart';
 import 'package:tamdan/ui/screens/add_athlete.dart';
-// import 'package:tamdan/ui/screens/add_athlete.dart';
 import 'package:tamdan/ui/screens/athlete_detail.dart';
 import 'package:tamdan/ui/widgets/athlete_card.dart';
+import 'package:tamdan/ui/widgets/custom_app_bar.dart';
+import 'package:tamdan/ui/widgets/custom_searchbar.dart';
 import 'package:tamdan/utils/mock_data.dart';
+
 
 class AthleteListScreen extends StatefulWidget {
   const AthleteListScreen({super.key});
@@ -39,17 +41,16 @@ class _AthleteListScreenState extends State<AthleteListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Athletes')),
+      appBar: const CustomAppBar(
+        title: 'Atheletes',
+      ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
-            child: TextField(
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.search),
-                hintText: 'Search by name...'
-              ),
+            child: CustomSearchBar(
               onChanged: _search,
+              hintText: 'Search by name...',        
             ),
           ),
           Expanded(
