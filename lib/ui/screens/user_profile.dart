@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tamdan/ui/widgets/personal_info_card.dart';
+import 'package:tamdan/ui/widgets/ptofile_header.dart';
 import 'package:tamdan/utils/mock_data.dart';
 
 class UserProfileScreen extends StatelessWidget {
@@ -15,28 +17,19 @@ class UserProfileScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: CircleAvatar(
-                radius: 48,
-                child: Text(
-                  user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
+            Center(child: ProfileHeader(name: user.name, role: user.role)),
             const SizedBox(height: 24),
-            const Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(user.name, style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 12),
-            const Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(user.email, style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 12),
-            const Text('Role', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(user.role, style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 12),
-            const Text('Member Since', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text('${user.createdDate.day}/${user.createdDate.month}/${user.createdDate.year}',
-                style: const TextStyle(fontSize: 18)),
+            
+            Center(child: const Text('Personal Info', style: TextStyle( fontSize: 18, color: Color.fromARGB(255, 77, 55, 55)))),
+            const SizedBox(height:8,),
+            PersonalInfoCard(infoPairs: {
+              'Date of birth': '12/12/2002',
+              'Gender': 'Male',
+              'Role': 'Coach',
+              'Experience': '3 Years',
+              'Belt Level': 'Coach',
+              'Focus on': 'Strength',
+            }),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,

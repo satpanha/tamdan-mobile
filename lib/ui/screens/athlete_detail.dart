@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tamdan/models/athlete.dart';
 import 'package:tamdan/ui/screens/edit_athlete.dart';
+import 'package:tamdan/ui/widgets/action_botton.dart';
+import 'package:tamdan/ui/widgets/personal_info_card.dart';
+import 'package:tamdan/ui/widgets/ptofile_header.dart';
 
 class AthleteDetailScreen extends StatefulWidget {
   final Athlete athlete;
@@ -44,8 +47,8 @@ class _AthleteDetailScreenState extends State<AthleteDetailScreen> {
         title: const Text('Athlete Details'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context, athlete);
+          onPressed: (){
+          Navigator.pop(context, athlete); 
           },
         ),
       ),
@@ -54,34 +57,22 @@ class _AthleteDetailScreenState extends State<AthleteDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(athlete.name, style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 12),
-            const Text(
-              'Date of Birth',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(
-              _fmt(athlete.dateOfBirth),
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 12),
-            const Text('Gender', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(athlete.gender, style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 12),
-            const Text(
-              'Belt Level',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(athlete.beltLevel, style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 12),
-            const Text('Status', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(athlete.status, style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 24),
+            Center(child: ProfileHeader(name: athlete.name, role: athlete.beltLevel)),
+            const SizedBox(height: 24,),
+            Center(child: const Text('Personal Info', style: TextStyle( fontSize: 18, color: Color.fromARGB(255, 77, 55, 55)))),
+            const SizedBox(height: 8,),
+            PersonalInfoCard(infoPairs: {
+              'Name': athlete.name,
+              'Date of Birth': _fmt(athlete.dateOfBirth),
+              'Gender': athlete.gender,
+              'Belt Level': athlete.beltLevel,
+              'Status': athlete.status,
+            }),
+            const SizedBox(height: 36),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton.icon(
+                ActionButton(
                   onPressed: () async {
                     // Navigate to EditAthleteScreen and handle result in caller
                     final updatedAthlete = await Navigator.push<Athlete>(
@@ -96,11 +87,12 @@ class _AthleteDetailScreenState extends State<AthleteDetailScreen> {
                       });
                     }
                   },
-                  icon: const Icon(Icons.edit),
-                  label: const Text('Edit'),
+                  icon: Icons.edit,
+                  label: 'Edit',
+                  backgroundColor: const Color(0xFF0A2940),
                 ),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                const SizedBox(width: 24,),
+                ActionButton(
                   onPressed: () {
                     showDialog<bool>(
                       context: context,
@@ -127,8 +119,9 @@ class _AthleteDetailScreenState extends State<AthleteDetailScreen> {
                       }
                     });
                   },
-                  icon: const Icon(Icons.delete),
-                  label: const Text('Delete'),
+                  icon: Icons.delete,
+                  label: "Delete",
+                  backgroundColor: Colors.red,
                 ),
               ],
             ),

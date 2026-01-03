@@ -41,6 +41,8 @@ This guide helps you build a simple offline Flutter app that manages athlete dat
 
 ---
 
+best practice for beginnier mobile app
+
 ## Recommended Project Structure
 
 Organize your Flutter project like this:
