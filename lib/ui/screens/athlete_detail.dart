@@ -74,7 +74,6 @@ class _AthleteDetailScreenState extends State<AthleteDetailScreen> {
               children: [
                 ActionButton(
                   onPressed: () async {
-                    // Navigate to EditAthleteScreen and handle result in caller
                     final updatedAthlete = await Navigator.push<Athlete>(
                       context,
                       MaterialPageRoute(
