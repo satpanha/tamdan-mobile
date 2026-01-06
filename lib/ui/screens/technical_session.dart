@@ -1,8 +1,3 @@
-/// Technical session screen: purely presentational + navigation.
-/// Architectural notes:
-/// - Uses `BaseScreen` for consistent layout (AppBar, scrollable body, fixed bottom button).
-/// - No business logic or persistence in widgets; state is local and short-lived.
-/// - Navigation is done via named routes in `AppRoutes` and arguments.
 library;
 import 'package:flutter/material.dart';
 import 'package:tamdan/models/technical_sessions.dart';

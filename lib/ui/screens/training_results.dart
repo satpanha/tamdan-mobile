@@ -1,7 +1,3 @@
-/// Training results screen — read-only analytics.
-/// Architectural notes:
-/// - Presentation-only; it consumes aggregated session data passed via arguments or a repository.
-/// - Reuses `AthleteHeader` and `BaseScreen` to keep consistent layout and composition.
 library;
 import 'package:flutter/material.dart';
 import 'package:tamdan/ui/widgets/base_screen.dart';

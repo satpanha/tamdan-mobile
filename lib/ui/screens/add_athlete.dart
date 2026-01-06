@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:tamdan/models/athlete.dart';
 import 'package:tamdan/ui/widgets/action_botton.dart';

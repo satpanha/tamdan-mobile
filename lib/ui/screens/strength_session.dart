@@ -1,7 +1,3 @@
-/// Strength session screen — layout only (no persistence).
-/// Notes:
-/// - Reuses `MetricSection` and `RatingBar` for clarity and reusability.
-/// - Inputs remain local; persistence should be handled by a repository/service layer.
 library;
 import 'package:flutter/material.dart';
 import 'package:tamdan/models/athlete.dart';
