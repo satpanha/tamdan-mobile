@@ -1,3 +1,4 @@
+/// Strength session model. Immutable and simple to support future persistence layers.
 class StrengthSessions {
   final String id; // pk
   final String trainingSessionId;
@@ -7,8 +8,9 @@ class StrengthSessions {
   final int kickPower;
   final int coreStrength;
   final int legStrength;
+  final String? coachNotes;
 
-  StrengthSessions({
+  const StrengthSessions({
     required this.id,
     required this.trainingSessionId,
     required this.pushUps,
@@ -17,5 +19,6 @@ class StrengthSessions {
     required this.kickPower,
     required this.coreStrength,
     required this.legStrength,
+    this.coachNotes,
   });
 }

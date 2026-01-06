@@ -1,3 +1,4 @@
+/// Aggregated training results used for analytics/read-only views.
 class TrainingResults {
   final String id; // pk
   final double overallScore;
@@ -5,7 +6,7 @@ class TrainingResults {
   final double speedScore;
   final int strengthScore;
 
-  TrainingResults({
+  const TrainingResults({
     required this.id,
     required this.overallScore,
     required this.controlScore,
