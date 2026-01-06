@@ -44,9 +44,11 @@ final List<Athlete> mockAthletes = [
   ),
 ];
 
-final User mockUser = User(
-  name: "Coach Alex",
-  email: "coach.alex@gym.com",
-  role: "Head Trainer",
-  createdDate: DateTime(2023, 1, 1),
+final mockUser = User(
+  name: 'Sat Panha',
+  role: 'Coach',
+  dateOfBirth: DateTime(2002, 12, 12),
+  gender: 'Male',
+  experience: '3 Years',
+  focusOn: 'Strength',
 );

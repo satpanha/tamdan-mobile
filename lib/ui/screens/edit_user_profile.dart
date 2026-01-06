@@ -1,51 +1,57 @@
 import 'package:flutter/material.dart';
-import 'package:tamdan/models/athlete.dart';
+import 'package:tamdan/models/user.dart';
 import 'package:tamdan/ui/widgets/add_profile_picture.dart';
 import 'package:tamdan/ui/widgets/custom_text_field.dart';
 import 'package:tamdan/ui/widgets/custom_date_picker.dart';
 import 'package:tamdan/ui/widgets/custom_dropdown.dart';
 import 'package:tamdan/ui/widgets/action_botton.dart';
-import 'package:tamdan/utils/constants.dart';
 import 'package:tamdan/utils/validators.dart';
 
-class EditAthleteScreen extends StatefulWidget {
-  final Athlete athlete;
-  const EditAthleteScreen({super.key, required this.athlete});
+class EditUserProfileScreen extends StatefulWidget {
+  final User user;
+  const EditUserProfileScreen({super.key, required this.user});
 
   @override
-  State<EditAthleteScreen> createState() => _EditAthleteScreenState();
+  State<EditUserProfileScreen> createState() => _EditUserProfileScreenState();
 }
 
-class _EditAthleteScreenState extends State<EditAthleteScreen> {
+class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
-  late DateTime _dob;
+  late TextEditingController _experienceController;
+  late TextEditingController _focusOnController;
+  DateTime? _dob;
   String? _gender;
-  String? _beltLevel;
-  String? _status;
+  String? _role;
   bool _submitted = false;
+
+  final List<String> genders = ['Male', 'Female', 'Other'];
+  final List<String> roles = ['Coach', 'Athlete', 'Admin', 'Manager', 'Staff'];
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.athlete.name);
-    _dob = widget.athlete.dateOfBirth;
-    _gender = widget.athlete.gender;
-    _beltLevel = widget.athlete.beltLevel;
-    _status = widget.athlete.status;
+    _nameController = TextEditingController(text: widget.user.name);
+    _experienceController = TextEditingController(text: widget.user.experience);
+    _focusOnController = TextEditingController(text: widget.user.focusOn);
+    _dob = widget.user.dateOfBirth;
+    _gender = widget.user.gender;
+    _role = widget.user.role;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _experienceController.dispose();
+    _focusOnController.dispose();
     super.dispose();
   }
 
   Future<void> _selectDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _dob,
-      firstDate: DateTime(1980),
+      initialDate: _dob ?? DateTime(2000, 1, 1),
+      firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
     if (picked != null) setState(() => _dob = picked);
@@ -53,24 +59,24 @@ class _EditAthleteScreenState extends State<EditAthleteScreen> {
 
   void _save() {
     setState(() => _submitted = true);
-    final dateErr = FormValidators.validateDateOfBirth(_dob);
-    if (_formKey.currentState!.validate() && dateErr == null) {
-      final updated = Athlete(
-        id: widget.athlete.id,
+    final dobError = FormValidators.validateDateOfBirth(_dob);
+    if (_formKey.currentState!.validate() && dobError == null) {
+      final updatedUser = User(
         name: _nameController.text.trim(),
-        dateOfBirth: _dob,
-        gender: _gender!,
-        beltLevel: _beltLevel!,
-        status: _status!,
+        role: _role ?? '',
+        dateOfBirth: _dob!,
+        gender: _gender ?? '',
+        experience: _experienceController.text.trim(),
+        focusOn: _focusOnController.text.trim(),
       );
-      Navigator.pop(context, updated);
+      Navigator.pop(context, updatedUser);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Athlete')),
+      appBar: AppBar(title: const Text('Edit Profile')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -78,15 +84,18 @@ class _EditAthleteScreenState extends State<EditAthleteScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                
                 AddProfilePicture(label: 'Edit Profile Picture'),
                 const SizedBox(height: 24),
+
                 CustomTextField(
-                  label: 'Name',
-                  hintText: 'Enter Name',
+                  label: 'Full Name',
+                  hintText: 'Enter your name',
                   controller: _nameController,
                   validator: FormValidators.validateName,
                 ),
                 const SizedBox(height: 16),
+
                 CustomDatePicker(
                   label: 'Date Of Birth',
                   value: _dob,
@@ -94,6 +103,7 @@ class _EditAthleteScreenState extends State<EditAthleteScreen> {
                   errorText: _submitted ? FormValidators.validateDateOfBirth(_dob) : null,
                 ),
                 const SizedBox(height: 16),
+
                 CustomDropdown<String>(
                   label: 'Gender',
                   hintText: 'Select Gender',
@@ -104,26 +114,34 @@ class _EditAthleteScreenState extends State<EditAthleteScreen> {
                   onChanged: (v) => setState(() => _gender = v),
                 ),
                 const SizedBox(height: 16),
+
                 CustomDropdown<String>(
-                  label: 'Belt Level',
-                  hintText: 'Select Belt Level',
-                  value: _beltLevel,
-                  items: beltLevels,
-                  itemLabel: (b) => b,
+                  label: 'Role',
+                  hintText: 'Select Role',
+                  value: _role,
+                  items: roles,
+                  itemLabel: (r) => r,
                   validator: FormValidators.validateDropdown,
-                  onChanged: (v) => setState(() => _beltLevel = v),
+                  onChanged: (v) => setState(() => _role = v),
                 ),
                 const SizedBox(height: 16),
-                CustomDropdown<String>(
-                  label: 'Status',
-                  hintText: 'Select Status',
-                  value: _status,
-                  items: statuses,
-                  itemLabel: (s) => s,
-                  validator: FormValidators.validateDropdown,
-                  onChanged: (v) => setState(() => _status = v),
+
+                CustomTextField(
+                  label: 'Experience',
+                  hintText: 'e.g. 3 Years',
+                  controller: _experienceController,
+                  validator: FormValidators.validateAdmin,
+                ),
+                const SizedBox(height: 16),
+
+                CustomTextField(
+                  label: 'Focus on',
+                  hintText: 'e.g. Strength',
+                  controller: _focusOnController,
+                  validator: FormValidators.validateAdmin,
                 ),
                 const SizedBox(height: 24),
+
                 Row(
                   children: [
                     ActionButton(
@@ -137,7 +155,7 @@ class _EditAthleteScreenState extends State<EditAthleteScreen> {
                     ActionButton(
                       onPressed: _save,
                       icon: Icons.save,
-                      label: 'Save Changes',
+                      label: 'Save',
                       backgroundColor: const Color(0xFF0D47A1),
                     ),
                   ],
