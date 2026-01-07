@@ -18,7 +18,7 @@ class BaseScreen extends StatelessWidget {
       appBar: CustomAppBar(title: title),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: child,
         ),
       ),

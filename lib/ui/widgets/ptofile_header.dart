@@ -12,30 +12,31 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Column(
       children: [
-        CircleAvatar(
-          radius: 48,
-          backgroundColor: Colors.grey[300],
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: cs.primary.withAlpha((0.14 * 255).round()), width: 4),
+          ),
+          child: CircleAvatar(
+            radius: 48,
+            backgroundColor: cs.primaryContainer,
+            child: Icon(Icons.person, size: 42, color: cs.onPrimaryContainer),
+          ),
         ),
         const SizedBox(height: 12),
         Text(
           name,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+          style: Theme.of(context).textTheme.headlineSmall,
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 4),
         Text(
           role,
-          style: TextStyle(
-            fontSize: 15,
-            color: Colors.black.withOpacity(0.4),
-            fontWeight: FontWeight.w500,
-          ),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withAlpha((0.6 * 255).round())),
           textAlign: TextAlign.center,
         ),
       ],

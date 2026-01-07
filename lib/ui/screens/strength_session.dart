@@ -6,7 +6,7 @@ import 'package:tamdan/utils/mock_data.dart';
 import 'package:tamdan/ui/widgets/base_screen.dart';
 import 'package:tamdan/ui/widgets/athlete_header.dart';
 import 'package:tamdan/ui/widgets/metric_section.dart';
-import 'package:tamdan/ui/widgets/rating_bar.dart';
+import 'package:tamdan/ui/widgets/metric_row.dart';
 import 'package:tamdan/ui/widgets/coach_notes_field.dart';
 import 'package:tamdan/ui/widgets/primary_button.dart';
 import 'package:tamdan/routes/app_routes.dart';
@@ -87,24 +87,14 @@ class _StrengthSessionScreenState extends State<StrengthSessionScreen> {
 
     await SessionRepository.instance.save(record);
 
+    if (!mounted) return;
     debugPrint('Saved strength session: ${session.id} for ${athlete.name}');
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: const Text('Strength session saved'),
       action: SnackBarAction(label: 'Back to tracking', onPressed: () => Navigator.of(context).pushNamed(AppRoutes.tracking)),
     ));
 
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Saved'),
-        content: const Text('Session saved successfully.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
-          ElevatedButton(onPressed: () => Navigator.of(context).pushNamed(AppRoutes.tracking), child: const Text('Back to tracking')),
-        ],
-      ),
-    );
-
+    if (!mounted) return;
     Navigator.of(context).pushNamed(AppRoutes.trainingResults, arguments: {'athleteId': athlete.id});
   }
 
@@ -154,24 +144,21 @@ class _StrengthSessionScreenState extends State<StrengthSessionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Kick Power'),
-                  RatingBar(value: _kickPower[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _kickPower[_athletes[_currentIndex].id] = v)),
+                  MetricRow(label: 'Kick Power', value: _kickPower[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _kickPower[_athletes[_currentIndex].id] = v)),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Core Strength'),
-                  RatingBar(value: _coreStrength[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _coreStrength[_athletes[_currentIndex].id] = v)),
+                  MetricRow(label: 'Core Strength', value: _coreStrength[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _coreStrength[_athletes[_currentIndex].id] = v)),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Leg Strength'),
-                  RatingBar(value: _legStrength[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _legStrength[_athletes[_currentIndex].id] = v)),
+                  MetricRow(label: 'Leg Strength', value: _legStrength[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _legStrength[_athletes[_currentIndex].id] = v)),
                 ],
               ),
             ],

@@ -3,8 +3,11 @@ import 'package:tamdan/routes/app_routes.dart';
 import 'package:tamdan/ui/widgets/base_screen.dart';
 import 'package:tamdan/ui/widgets/athlete_card.dart';
 import 'package:tamdan/ui/widgets/personal_info_card.dart';
+import 'package:tamdan/data/athlete_repository.dart';
+import 'package:tamdan/ui/widgets/ptofile_header.dart';
 import 'package:tamdan/utils/mock_data.dart';
 import 'package:tamdan/ui/widgets/primary_button.dart';
+import 'package:tamdan/models/athlete.dart';
 
 enum SessionType { technical, strength, physical }
 
@@ -20,6 +23,32 @@ class _TrackingScreenState extends State<TrackingScreen> {
   DateTime _selectedDateTime = DateTime.now();
   final Set<String> _selectedAthleteIds = {};
 
+  // Athletes are loaded via repository; fallback to mock data if none present.
+  List<Athlete> _athletes = [];
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAthletes();
+  }
+
+  Future<void> _loadAthletes() async {
+    try {
+      final list = await AthleteRepository.instance.getAll();
+      if (list.isNotEmpty) {
+        _athletes = list;
+      } else {
+        _athletes = mockAthletes;
+      }
+    } catch (e) {
+      // If repo fails for any reason, fall back to the bundled mock data
+      _athletes = mockAthletes;
+    }
+    _loaded = true;
+    if (mounted) setState(() {});
+  }
+
   void _pickDateTime() async {
     final date = await showDatePicker(
       context: context,
@@ -27,11 +56,22 @@ class _TrackingScreenState extends State<TrackingScreen> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
+    if (!mounted) return;
     if (date == null) return;
-    final time = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(_selectedDateTime));
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
+    );
+    if (!mounted) return;
     if (time == null) return;
     setState(() {
-      _selectedDateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      _selectedDateTime = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
     });
   }
 
@@ -45,13 +85,19 @@ class _TrackingScreenState extends State<TrackingScreen> {
 
     switch (_selectedType!) {
       case SessionType.technical:
-        Navigator.of(context).pushNamed(AppRoutes.technicalSession, arguments: args);
+        Navigator.of(
+          context,
+        ).pushNamed(AppRoutes.technicalSession, arguments: args);
         break;
       case SessionType.strength:
-        Navigator.of(context).pushNamed(AppRoutes.strengthSession, arguments: args);
+        Navigator.of(
+          context,
+        ).pushNamed(AppRoutes.strengthSession, arguments: args);
         break;
       case SessionType.physical:
-        Navigator.of(context).pushNamed(AppRoutes.physicalConditioning, arguments: args);
+        Navigator.of(
+          context,
+        ).pushNamed(AppRoutes.physicalConditioning, arguments: args);
         break;
     }
   }
@@ -60,6 +106,8 @@ class _TrackingScreenState extends State<TrackingScreen> {
     final d = dt.toLocal();
     return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -73,17 +121,43 @@ class _TrackingScreenState extends State<TrackingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text('Start new training session', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Center(
+            child: ProfileHeader(
+              name: 'Start Session',
+              role: _selectedType != null
+                  ? _selectedType.toString().split('.').last
+                  : 'Pick a type',
+            ),
           ),
+          if (_selectedAthleteIds.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
+              child: Align(
+                alignment: Alignment.center,
+                child: Chip(
+                  label: Text(
+                    '${_selectedAthleteIds.length} selected',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withAlpha((0.6 * 255).round()),
+                    ),
+                  ),
+                  backgroundColor: Theme.of(
+                    context,
+                  ).dividerColor.withAlpha((0.06 * 255).round()),
+                ),
+              ),
+            ),
 
           // Summary card (follows Athlete detail style)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: PersonalInfoCard(
               infoPairs: {
-                'Session type': _selectedType != null ? _selectedType.toString().split('.').last : 'Not selected',
+                'Session type': _selectedType != null
+                    ? _selectedType.toString().split('.').last
+                    : 'Not selected',
                 'Date/Time': _formatDateTime(_selectedDateTime),
                 'Athletes': '${_selectedAthleteIds.length} selected',
               },
@@ -92,23 +166,35 @@ class _TrackingScreenState extends State<TrackingScreen> {
 
           const SizedBox(height: 12),
 
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('Select session type', style: TextStyle(fontWeight: FontWeight.bold)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Select session type',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: DropdownButton<SessionType>(
-              key: const Key('sessionDropdown'),
-              isExpanded: true,
-              hint: const Text('Select session type'),
-              value: _selectedType,
-              items: const [
-                DropdownMenuItem(value: SessionType.technical, child: Text('Technical')),
-                DropdownMenuItem(value: SessionType.strength, child: Text('Strength')),
-                DropdownMenuItem(value: SessionType.physical, child: Text('Physical')),
-              ],
-              onChanged: (v) => setState(() => _selectedType = v),
+            child: Wrap(
+              spacing: 8,
+              children: SessionType.values.map((t) {
+                final label = t.toString().split('.').last;
+                final display = label[0].toUpperCase() + label.substring(1);
+                return ChoiceChip(
+                  label: Text(
+                    display,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  selected: _selectedType == t,
+                  onSelected: (sel) =>
+                      setState(() => _selectedType = sel ? t : null),
+                  selectedColor: Theme.of(
+                    context,
+                  ).colorScheme.primary.withAlpha((0.12 * 255).round()),
+                );
+              }).toList(),
             ),
           ),
           const SizedBox(height: 8),
@@ -118,12 +204,27 @@ class _TrackingScreenState extends State<TrackingScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Date/Time', style: Theme.of(context).textTheme.titleSmall),
-                TextButton.icon(
+                Text(
+                  'Date/Time',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withAlpha((0.6 * 255).round()),
+                  ),
+                ),
+                OutlinedButton.icon(
                   onPressed: _pickDateTime,
                   icon: const Icon(Icons.calendar_today),
-                  label: Text(_formatDateTime(_selectedDateTime)),
-                )
+                  label: Text(
+                    _formatDateTime(_selectedDateTime),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -131,24 +232,42 @@ class _TrackingScreenState extends State<TrackingScreen> {
 
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('Select Athletes', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(
+              'Select Athletes',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
           const SizedBox(height: 8),
-          ...mockAthletes.map((athlete) {
-            final selected = _selectedAthleteIds.contains(athlete.id);
-            return GestureDetector(
-              onTap: () => setState(() => selected ? _selectedAthleteIds.remove(athlete.id) : _selectedAthleteIds.add(athlete.id)),
-              child: AthleteCard(
-                athlete: athlete,
-                onTap: () => setState(() => selected ? _selectedAthleteIds.remove(athlete.id) : _selectedAthleteIds.add(athlete.id)),
-                selected: selected,
+          if (!_loaded)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(),
               ),
-            );
-          }),
+            )
+          else
+            ..._athletes.map((athlete) {
+              final selected = _selectedAthleteIds.contains(athlete.id);
+              return GestureDetector(
+                onTap: () => setState(
+                  () => selected
+                      ? _selectedAthleteIds.remove(athlete.id)
+                      : _selectedAthleteIds.add(athlete.id),
+                ),
+                child: AthleteCard(
+                  athlete: athlete,
+                  onTap: () => setState(
+                    () => selected
+                        ? _selectedAthleteIds.remove(athlete.id)
+                        : _selectedAthleteIds.add(athlete.id),
+                  ),
+                  selected: selected,
+                ),
+              );
+            }),
           const SizedBox(height: 24),
         ],
       ),
     );
   }
 }
-

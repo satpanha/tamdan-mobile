@@ -49,11 +49,11 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    // Expect overall to be (95 + 50 + 80)/3 = 75
+    // Expect overall to be ~7.5 -> 8 (0-10 scale) and stamina ~8 / 10
     expect(find.text('Overall'), findsOneWidget);
-    expect(find.text('75'), findsWidgets);
+    expect(find.text('8 / 10'), findsWidgets);
     expect(find.text('Stamina'), findsOneWidget);
-    expect(find.text('80'), findsWidgets);
+    expect(find.text('8 / 10'), findsWidgets);
   });
 }
 

@@ -14,7 +14,7 @@ class SelectButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
-          color: selected ? Theme.of(context).colorScheme.primary.withOpacity(0.12) : Colors.transparent,
+          color: selected ? Theme.of(context).colorScheme.primary.withAlpha((0.12 * 255).round()) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: selected ? Theme.of(context).colorScheme.primary : Colors.grey.shade300),
         ),

@@ -98,7 +98,7 @@ class SessionRepository implements SessionRepositoryInterface {
   @override
   Future<int> deleteById(String id) async {
     if (_useInMemory) {
-      final removed = _inMemoryStore.removeWhere((r) => r.id == id);
+      _inMemoryStore.removeWhere((r) => r.id == id);
       return 1;
     }
     try {

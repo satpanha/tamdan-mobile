@@ -10,13 +10,15 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 48,
+      width: double.infinity,
+      height: 52,
       child: ElevatedButton(
         onPressed: enabled ? onPressed : null,
         style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          elevation: 2,
         ),
-        child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
       ),
     );
   }

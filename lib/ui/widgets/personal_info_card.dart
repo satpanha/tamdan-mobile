@@ -8,19 +8,17 @@ class PersonalInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final keys = infoPairs.keys.toList();
+    final cs = Theme.of(context).colorScheme;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
+          BoxShadow(color: Colors.black.withAlpha((0.03 * 255).round()), blurRadius: 8, offset: const Offset(0, 4)),
         ],
       ),
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18),
       child: Column(
         children: [
           for (int i = 0; i < keys.length; i += 2) ...[
@@ -42,9 +40,9 @@ class PersonalInfoCard extends StatelessWidget {
               ],
             ),
             if (i + 2 < keys.length)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 14),
-                child: Divider(height: 1, color: Color(0xFFE0E0E0)),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Divider(height: 1, color: Theme.of(context).dividerTheme.color),
               ),
           ],
         ],

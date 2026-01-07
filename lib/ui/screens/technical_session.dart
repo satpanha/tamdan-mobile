@@ -5,8 +5,9 @@ import 'package:tamdan/models/athlete.dart';
 import 'package:tamdan/utils/mock_data.dart';
 import 'package:tamdan/ui/widgets/base_screen.dart';
 import 'package:tamdan/ui/widgets/athlete_header.dart';
+import 'package:tamdan/ui/widgets/metric_row.dart';
 import 'package:tamdan/ui/widgets/metric_section.dart';
-import 'package:tamdan/ui/widgets/rating_bar.dart';
+
 import 'package:tamdan/ui/widgets/coach_notes_field.dart';
 import 'package:tamdan/ui/widgets/primary_button.dart';
 import 'package:tamdan/routes/app_routes.dart';
@@ -84,6 +85,7 @@ class _TechnicalSessionScreenState extends State<TechnicalSessionScreen> {
     } catch (e, st) {
       debugPrint('Failed to save technical session: $e\n$st');
 
+      if (!mounted) return;
       await showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -97,6 +99,7 @@ class _TechnicalSessionScreenState extends State<TechnicalSessionScreen> {
         ),
       );
 
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Failed to save session: ${e.toString()}'),
       ));
@@ -105,25 +108,14 @@ class _TechnicalSessionScreenState extends State<TechnicalSessionScreen> {
 
     debugPrint('Saved technical session: ${session.id} for ${athlete.name}');
 
-    // Inform user of success, allow quick return to tracking
+    // Inform user of success and navigate to results
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: const Text('Technical session saved'),
       action: SnackBarAction(label: 'Back to tracking', onPressed: () => Navigator.of(context).pushNamed(AppRoutes.tracking)),
     ));
 
-    // Show a confirmation dialog and wait for user to close it before navigating
-    await showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Saved'),
-        content: const Text('Session saved successfully.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
-          ElevatedButton(onPressed: () => Navigator.of(context).pushNamed(AppRoutes.tracking), child: const Text('Back to tracking')),
-        ],
-      ),
-    );
-
+    if (!mounted) return;
     // Navigate to training results for the saved athlete
     Navigator.of(context).pushNamed(AppRoutes.trainingResults, arguments: {'athleteId': athlete.id});
   }
@@ -158,24 +150,21 @@ class _TechnicalSessionScreenState extends State<TechnicalSessionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Speed'),
-                  RatingBar(value: _speed[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _speed[_athletes[_currentIndex].id] = v)),
+                  MetricRow(label: 'Speed', value: _speed[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _speed[_athletes[_currentIndex].id] = v)),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Balance'),
-                  RatingBar(value: _balance[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _balance[_athletes[_currentIndex].id] = v)),
+                  MetricRow(label: 'Balance', value: _balance[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _balance[_athletes[_currentIndex].id] = v)),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Control'),
-                  RatingBar(value: _control[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _control[_athletes[_currentIndex].id] = v)),
+                  MetricRow(label: 'Control', value: _control[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _control[_athletes[_currentIndex].id] = v)),
                 ],
               ),
             ],
@@ -186,7 +175,7 @@ class _TechnicalSessionScreenState extends State<TechnicalSessionScreen> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Expanded(child: Text('Roundhouse accuracy: ${(_roundhouse[_athletes[_currentIndex].id] ?? 0).round()}%')),
+                  Expanded(child: Text('Roundhouse accuracy: ${(_roundhouse[_athletes[_currentIndex].id] ?? 0).round()}%', style: Theme.of(context).textTheme.bodyMedium)),
                   Expanded(
                     child: Slider(
                       value: _roundhouse[_athletes[_currentIndex].id] ?? 0,

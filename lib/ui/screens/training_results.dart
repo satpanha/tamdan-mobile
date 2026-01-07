@@ -1,9 +1,12 @@
-library;
 import 'package:flutter/material.dart';
 import 'package:tamdan/ui/widgets/base_screen.dart';
-import 'package:tamdan/ui/widgets/athlete_header.dart';
+import 'package:tamdan/ui/widgets/ptofile_header.dart';
+import 'package:tamdan/ui/widgets/personal_info_card.dart';
+import 'package:tamdan/ui/widgets/session_tile.dart';
+import 'package:tamdan/ui/widgets/summary_card.dart';
 import 'package:tamdan/utils/mock_data.dart';
 import 'package:tamdan/data/session_repository.dart';
+import 'package:tamdan/utils/time_utils.dart';
 
 class TrainingResultsScreen extends StatefulWidget {
   const TrainingResultsScreen({super.key});
@@ -49,93 +52,58 @@ class _TrainingResultsScreenState extends State<TrainingResultsScreen> {
     }
   }
 
-  int _overall = 0;
-  int _technical = 0;
-  int _strength = 0;
-  int _conditioning = 0;
+  int? _overall;
+  int? _technical;
+  int? _strength;
+  int? _conditioning;
+
+  double? _avgOf(List<SessionRecord> sessions, double Function(SessionRecord) score) {
+    if (sessions.isEmpty) return null;
+    final scores = sessions.map(score).toList();
+    return scores.reduce((a, b) => a + b) / scores.length;
+  }
 
   void _computeSummary() {
-    // Compute per-type averages from _sessions
-    double? techAvg;
-    double? strAvg;
-    double? physAvg;
+    // Helper to normalize values to a 0-10 scale
+    double norm(num? v, double max) => (v?.toDouble() ?? 0.0) / max * 10.0;
 
-    final techSessions = _sessions.where((s) => s.sessionType == 'technical').toList();
-    if (techSessions.isNotEmpty) {
-      final scores = techSessions.map((s) {
-        final p = s.payload;
-        final speed = (p['speed'] as num?)?.toDouble() ?? 0.0; // 0..5
-        final balance = (p['balance'] as num?)?.toDouble() ?? 0.0; // 0..5
-        final control = (p['control'] as num?)?.toDouble() ?? 0.0; // 0..5
-        final roundhouse = (p['roundhouseAccuracy'] as num?)?.toDouble() ?? 0.0; // 0..100
-        final speedPct = (speed / 5.0) * 100.0;
-        final balancePct = (balance / 5.0) * 100.0;
-        final controlPct = (control / 5.0) * 100.0;
-        final roundPct = roundhouse;
-        return (speedPct + balancePct + controlPct + roundPct) / 4.0;
-      }).toList();
-      techAvg = scores.reduce((a, b) => a + b) / scores.length;
-    }
+    final techAvg = _avgOf(_sessions.where((s) => s.sessionType == 'technical').toList(), (s) {
+      final p = s.payload;
+      final speed = norm(p['speed'], 5.0);
+      final balance = norm(p['balance'], 5.0);
+      final control = norm(p['control'], 5.0);
+      final roundhouse = norm(p['roundhouseAccuracy'], 100.0);
+      return (speed + balance + control + roundhouse) / 4.0;
+    });
 
-    final strSessions = _sessions.where((s) => s.sessionType == 'strength').toList();
-    if (strSessions.isNotEmpty) {
-      final scores = strSessions.map((s) {
-        final p = s.payload;
-        final pushUps = (p['pushUps'] as num?)?.toDouble() ?? 0.0; // assume max 100
-        final sitUps = (p['sitUps'] as num?)?.toDouble() ?? 0.0; // assume max 100
-        final squats = (p['squats'] as num?)?.toDouble() ?? 0.0; // assume max 100
-        final kickPower = (p['kickPower'] as num?)?.toDouble() ?? 0.0; // assume max 200
-        final core = (p['coreStrength'] as num?)?.toDouble() ?? 0.0; // assume max 200
-        final leg = (p['legStrength'] as num?)?.toDouble() ?? 0.0; // assume max 200
-
-        final pushPct = (pushUps / 100.0) * 100.0;
-        final sitPct = (sitUps / 100.0) * 100.0;
-        final squatPct = (squats / 100.0) * 100.0;
-        final kickPct = (kickPower / 200.0) * 100.0;
-        final corePct = (core / 200.0) * 100.0;
-        final legPct = (leg / 200.0) * 100.0;
-        return (pushPct + sitPct + squatPct + kickPct + corePct + legPct) / 6.0;
-      }).toList();
-      strAvg = scores.reduce((a, b) => a + b) / scores.length;
-    }
+    final strAvg = _avgOf(_sessions.where((s) => s.sessionType == 'strength').toList(), (s) {
+      final p = s.payload;
+      final push = norm(p['pushUps'], 100.0);
+      final sit = norm(p['sitUps'], 100.0);
+      final squat = norm(p['squats'], 100.0);
+      final kick = norm(p['kickPower'], 200.0);
+      final core = norm(p['coreStrength'], 200.0);
+      final leg = norm(p['legStrength'], 200.0);
+      return (push + sit + squat + kick + core + leg) / 6.0;
+    });
 
     final physSessions = _sessions.where((s) => s.sessionType == 'physical').toList();
-    if (physSessions.isNotEmpty) {
-      final scores = physSessions.map((s) {
-        final p = s.payload;
-        final stamina = (p['stamina'] as num?)?.toDouble() ?? 0.0; // assume 0..100
-        final flexibility = (p['flexibility'] as num?)?.toDouble() ?? 0.0; // assume 0..100
-        final reaction = (p['reactionSpeed'] as num?)?.toDouble() ?? 0.0; // assume 0..100
-        return (stamina + flexibility + reaction) / 3.0;
-      }).toList();
-      physAvg = scores.reduce((a, b) => a + b) / scores.length;
-    }
+    final physAvg = physSessions.isEmpty
+        ? null
+        : _avgOf(physSessions, (s) {
+            final p = s.payload;
+            final stamina = norm(p['stamina'], 100.0);
+            final flexibility = norm(p['flexibility'], 100.0);
+            final reaction = norm(p['reactionSpeed'], 100.0);
+            return (stamina + flexibility + reaction) / 3.0;
+          });
 
-    final parts = <double>[];
-    if (techAvg != null) {
-      _technical = techAvg.round();
-      parts.add(techAvg);
-    } else {
-      _technical = 0;
-    }
-    if (strAvg != null) {
-      _strength = strAvg.round();
-      parts.add(strAvg);
-    } else {
-      _strength = 0;
-    }
-    if (physAvg != null) {
-      _conditioning = physAvg.round();
-      parts.add(physAvg);
-    } else {
-      _conditioning = 0;
-    }
+    _technical = techAvg?.round();
+    _strength = strAvg?.round();
+    _conditioning = (physAvg != null && physAvg > 0) ? physAvg.round() : null;
 
-    if (parts.isNotEmpty) {
-      _overall = (parts.reduce((a, b) => a + b) / parts.length).round();
-    } else {
-      _overall = 0;
-    }
+    final parts = [techAvg, strAvg, physAvg].whereType<double>().toList();
+    _overall = parts.isNotEmpty ? (parts.reduce((a, b) => a + b) / parts.length).round() : null;
   }
 
   @override
@@ -144,28 +112,42 @@ class _TrainingResultsScreenState extends State<TrainingResultsScreen> {
     final athleteId = args != null ? args['athleteId'] as String? : null;
     final athlete = athleteId != null ? mockAthletes.firstWhere((a) => a.id == athleteId, orElse: () => mockAthletes.first) : mockAthletes.first;
 
+    final cs = Theme.of(context).colorScheme;
+
     return BaseScreen(
       title: 'Training Results',
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AthleteHeader(athlete: athlete, subtitle: _sessions.isNotEmpty ? 'Last session: ${_sessions.last.dateTime.toLocal()}' : 'No sessions yet'),
+      child: _loading
+          ? SizedBox(height: 300, child: Center(child: CircularProgressIndicator(color: cs.primary)))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(child: ProfileHeader(name: athlete.name, role: athlete.beltLevel)),
+                  if (_sessions.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6, left: 16, right: 16),
+                      child: Text('Last session • ${timeAgoShort(_sessions.last.dateTime)}', style: Theme.of(context).textTheme.bodySmall),
+                    )
+                  else
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6, left: 16, right: 16),
+                      child: Text('No sessions yet', style: Theme.of(context).textTheme.bodySmall),
+                    ),
 
             // In-memory banner
             if (SessionRepository.instance.usingInMemory)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Material(
-                  color: Colors.amber[50],
+                  color: cs.secondaryContainer,
                   borderRadius: BorderRadius.circular(8),
                   child: ListTile(
-                    leading: const Icon(Icons.info_outline, color: Colors.orange),
-                    title: const Text('Temporary local store active'),
-                    subtitle: const Text('Sessions are stored locally and may not persist across restarts.'),
+                    leading: Icon(Icons.info_outline, color: cs.secondary),
+                    title: Text('Temporary local store active', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                    subtitle: Text('Sessions are stored locally and may not persist across restarts.'),
                     trailing: IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: Icon(Icons.close, color: cs.onSurface),
                       onPressed: () {},
                     ),
                   ),
@@ -180,36 +162,45 @@ class _TrainingResultsScreenState extends State<TrainingResultsScreen> {
                   Text('Summary scores', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
 
-                  // Cards row
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _summaryCard('Overall', _overall, Colors.blue),
-                        const SizedBox(width: 12),
-                        _summaryCard('Technical', _technical, Colors.green),
-                        const SizedBox(width: 12),
-                        _summaryCard('Strength', _strength, Colors.purple),
-                        const SizedBox(width: 12),
-                        _summaryCard('Conditioning', _conditioning, Colors.orange),
-                      ],
-                    ),
-                  ),
+                  // Summary card
+                  PersonalInfoCard(infoPairs: {
+                    'Overall': _overall != null ? '$_overall / 10' : 'Not assessed',
+                    'Technical': _technical != null ? '$_technical / 10' : 'Not assessed',
+                    'Strength': _strength != null ? '$_strength / 10' : 'Not assessed',
+                    'Conditioning': _conditioning != null ? '$_conditioning / 10' : 'Not assessed',
+                  }),
+                  const SizedBox(height: 12),
+                  if (_overall != null)
+                    LinearProgressIndicator(value: (_overall! / 10).clamp(0.0, 1.0), color: Theme.of(context).colorScheme.primary),
 
                   const SizedBox(height: 16),
 
                   // Quick metric row so labels like 'Stamina' remain visible in UI and tests
-                  if (_conditioning > 0)
+                  if (_conditioning != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: _buildRow('Stamina', '$_conditioning'),
+                      child: _buildRow('Stamina', '${_conditioning!} / 10'),
                     ),
 
+                  // Highlights: Strength & Conditioning
+                  Row(children: [
+                    Expanded(child: SummaryCard(title: 'Strength', score: _strength, color: cs.secondary)),
+                    const SizedBox(width: 12),
+                    Expanded(child: SummaryCard(title: 'Conditioning', score: _conditioning, color: cs.primary)),
+                  ]),
+
+                  const SizedBox(height: 12),
                   const Divider(),
                   const SizedBox(height: 8),
-                  Text('Read-only analytics', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.grey)),
+                  Text('Training Analytics', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withAlpha((0.6 * 255).round()))),
                   const SizedBox(height: 12),
-                  SizedBox(height: 120, child: Center(child: Text('Charts placeholder'))),
+                  Container(
+                    height: 140,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).dividerColor.withAlpha((0.06 * 255).round()),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -226,7 +217,7 @@ class _TrainingResultsScreenState extends State<TrainingResultsScreen> {
                     const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Text('No sessions recorded yet'))
                   else
                     Column(
-                      children: _sessions.reversed.map((s) => _buildSessionTile(s)).toList(),
+                      children: _sessions.reversed.map((s) => SessionTile(session: s)).toList(),
                     )
                 ],
               ),
@@ -237,42 +228,7 @@ class _TrainingResultsScreenState extends State<TrainingResultsScreen> {
     );
   }
 
-  Widget _buildSessionTile(SessionRecord s) {
-    final dt = s.dateTime.toLocal();
-    final when = _timeAgo(dt);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Chip(label: Text(s.sessionType.toUpperCase()), backgroundColor: Colors.blue.shade50),
-                Text(when, style: const TextStyle(color: Colors.grey)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 6,
-              children: s.payload.entries.map((e) {
-                return Chip(label: Text('${e.key}: ${e.value}'));
-              }).toList(),
-            ),
-            if ((s.payload['coachNotes'] as String?)?.isNotEmpty ?? false) ...[
-              const SizedBox(height: 8),
-              Text('Notes: ${s.payload['coachNotes']}', style: const TextStyle(fontStyle: FontStyle.italic))
-            ]
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildRow(String title, String value) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -282,33 +238,7 @@ class _TrainingResultsScreenState extends State<TrainingResultsScreen> {
         ),
       );
 
-  Widget _summaryCard(String title, int value, Color color) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
-      child: Container(
-        width: 140,
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text('$value', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            LinearProgressIndicator(value: (value / 100).clamp(0.0, 1.0), color: color, backgroundColor: color.withOpacity(0.15)),
-          ],
-        ),
-      ),
-    );
-  }
 
-  String _timeAgo(DateTime dt) {
-    final d = DateTime.now().difference(dt);
-    if (d.inDays >= 7) return '${(d.inDays / 7).floor()}w ago';
-    if (d.inDays >= 1) return '${d.inDays}d ago';
-    if (d.inHours >= 1) return '${d.inHours}h ago';
-    if (d.inMinutes >= 1) return '${d.inMinutes}m ago';
-    return 'just now';
-  }
+
+
 }

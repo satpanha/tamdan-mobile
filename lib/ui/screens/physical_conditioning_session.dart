@@ -6,7 +6,7 @@ import 'package:tamdan/utils/mock_data.dart';
 import 'package:tamdan/ui/widgets/base_screen.dart';
 import 'package:tamdan/ui/widgets/athlete_header.dart';
 import 'package:tamdan/ui/widgets/metric_section.dart';
-import 'package:tamdan/ui/widgets/rating_bar.dart';
+import 'package:tamdan/ui/widgets/metric_row.dart';
 import 'package:tamdan/ui/widgets/coach_notes_field.dart';
 import 'package:tamdan/ui/widgets/primary_button.dart';
 import 'package:tamdan/routes/app_routes.dart';
@@ -75,24 +75,14 @@ class _PhysicalConditioningSessionScreenState extends State<PhysicalConditioning
 
     await SessionRepository.instance.save(record);
 
+    if (!mounted) return;
     debugPrint('Saved physical conditioning session: ${session.id} for ${athlete.name}');
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: const Text('Physical conditioning saved'),
       action: SnackBarAction(label: 'Back to tracking', onPressed: () => Navigator.of(context).pushNamed(AppRoutes.tracking)),
     ));
 
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Saved'),
-        content: const Text('Session saved successfully.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
-          ElevatedButton(onPressed: () => Navigator.of(context).pushNamed(AppRoutes.tracking), child: const Text('Back to tracking')),
-        ],
-      ),
-    );
-
+    if (!mounted) return;
     Navigator.of(context).pushNamed(AppRoutes.trainingResults, arguments: {'athleteId': athlete.id});
   }
 
@@ -122,63 +112,30 @@ class _PhysicalConditioningSessionScreenState extends State<PhysicalConditioning
           MetricSection(
             title: 'Core performance',
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [const Text('Stamina'), RatingBar(value: _stamina[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _stamina[_athletes[_currentIndex].id] = v))],
-              ),
+              MetricRow(label: 'Stamina', value: _stamina[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _stamina[_athletes[_currentIndex].id] = v)),
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [const Text('Flexibility'), RatingBar(value: _flexibility[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _flexibility[_athletes[_currentIndex].id] = v))],
-              ),
+              MetricRow(label: 'Flexibility', value: _flexibility[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _flexibility[_athletes[_currentIndex].id] = v)),
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [const Text('Reaction'), RatingBar(value: _reaction[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _reaction[_athletes[_currentIndex].id] = v))],
-              ),
+              MetricRow(label: 'Reaction', value: _reaction[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _reaction[_athletes[_currentIndex].id] = v)),
+
             ],
           ),
           const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ExpansionTile(
-              title: const Text('Strength Test'),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(children: const [Text('Strength test details placeholder')]),
-                )
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ExpansionTile(
-              title: const Text('Speed & Reaction'),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(children: const [Text('Speed & reaction details placeholder')]),
-                )
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ExpansionTile(
-              title: const Text('Flexibility'),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(children: const [Text('Flexibility details placeholder')]),
-                )
-              ],
-            ),
-          ),
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildDetailTile('Strength Test', 'Strength test details placeholder')),
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildDetailTile('Speed & Reaction', 'Speed & reaction details placeholder')),
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildDetailTile('Flexibility', 'Flexibility details placeholder')),
           CoachNotesField(controller: _notes[_athletes[_currentIndex].id]!),
           const SizedBox(height: 120),
         ],
       ),
+    );
+  }
+
+
+  Widget _buildDetailTile(String title, String content) {
+    return ExpansionTile(
+      title: Text(title, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+      children: [Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(content, style: Theme.of(context).textTheme.bodyMedium)]))],
     );
   }
 }

@@ -70,8 +70,7 @@ class _AthleteListScreenState extends State<AthleteListScreen> {
                         athlete: athlete,
                         onTap: () async {
                           // Navigate to details
-                          final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => AthleteDetailScreen(athlete: athlete),)
-                          );
+                          final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => AthleteDetailScreen(athlete: athlete),));
                           if ( result is Athlete ){
                             setState(() {
                               final index = mockAthletes.indexWhere((a) => a.id == result.id );

@@ -26,6 +26,6 @@ class FormValidators {
   if (value == null || value.trim().isEmpty) {
     return "This field is required";
   }
-  return null;
+  return null;  
 }
 }

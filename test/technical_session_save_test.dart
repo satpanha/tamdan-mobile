@@ -34,14 +34,7 @@ void main() {
     await tester.tap(saveButton);
     await tester.pumpAndSettle();
 
-    // Should show confirmation dialog
-    expect(find.text('Saved'), findsOneWidget);
-
-    // Close the dialog
-    await tester.tap(find.text('Close'));
-    await tester.pumpAndSettle();
-
-    // After closing, should navigate to results
+    // Should navigate directly to results
     expect(find.text('Results'), findsOneWidget);
   });
 }
