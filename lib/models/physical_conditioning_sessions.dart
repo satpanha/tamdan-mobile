@@ -1,4 +1,4 @@
-/// Physical conditioning session model. Designed to be concise and immutable.
+
 class PhysicalConditioningSessions {
   final String id; // pk
   final String trainingSessionId;

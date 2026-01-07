@@ -1,4 +1,4 @@
-/// Strength session model. Immutable and simple to support future persistence layers.
+
 class StrengthSessions {
   final String id; // pk
   final String trainingSessionId;

@@ -1,4 +1,3 @@
-/// Aggregated training results used for analytics/read-only views.
 class TrainingResults {
   final String id; // pk
   final double overallScore;

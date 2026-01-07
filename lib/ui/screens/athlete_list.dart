@@ -95,7 +95,6 @@ class _AthleteListScreenState extends State<AthleteListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          // Navigate to AddAthlete and await result
           final newAthelete = await Navigator.push<Athlete>(
             context,
             MaterialPageRoute(builder: (_) => AddAthleteScreen())

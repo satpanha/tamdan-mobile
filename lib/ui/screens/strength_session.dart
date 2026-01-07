@@ -6,7 +6,7 @@ import 'package:tamdan/utils/mock_data.dart';
 import 'package:tamdan/ui/widgets/base_screen.dart';
 import 'package:tamdan/ui/widgets/athlete_header.dart';
 import 'package:tamdan/ui/widgets/metric_section.dart';
-import 'package:tamdan/ui/widgets/metric_row.dart';
+import 'package:tamdan/ui/widgets/core_performance_section.dart';
 import 'package:tamdan/ui/widgets/coach_notes_field.dart';
 import 'package:tamdan/ui/widgets/primary_button.dart';
 import 'package:tamdan/routes/app_routes.dart';
@@ -138,30 +138,13 @@ class _StrengthSessionScreenState extends State<StrengthSessionScreen> {
               _numberField('Squats', _squat[_athletes[_currentIndex].id]!),
             ],
           ),
-          MetricSection(
-            title: 'Performance Ratings',
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MetricRow(label: 'Kick Power', value: _kickPower[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _kickPower[_athletes[_currentIndex].id] = v)),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MetricRow(label: 'Core Strength', value: _coreStrength[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _coreStrength[_athletes[_currentIndex].id] = v)),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MetricRow(label: 'Leg Strength', value: _legStrength[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _legStrength[_athletes[_currentIndex].id] = v)),
-                ],
-              ),
-            ],
+          CorePerformanceSection(
+            stamina: _kickPower[_athletes[_currentIndex].id] ?? 0,
+            flexibility: _coreStrength[_athletes[_currentIndex].id] ?? 0,
+            reaction: _legStrength[_athletes[_currentIndex].id] ?? 0,
+            onStaminaChanged: (v) => setState(() => _kickPower[_athletes[_currentIndex].id] = v),
+            onFlexibilityChanged: (v) => setState(() => _coreStrength[_athletes[_currentIndex].id] = v),
+            onReactionChanged: (v) => setState(() => _legStrength[_athletes[_currentIndex].id] = v),
           ),
           CoachNotesField(controller: _notes[_athletes[_currentIndex].id]!),
           const SizedBox(height: 120),

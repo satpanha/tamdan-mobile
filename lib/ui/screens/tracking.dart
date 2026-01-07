@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:tamdan/routes/app_routes.dart';
 import 'package:tamdan/ui/widgets/base_screen.dart';
 import 'package:tamdan/ui/widgets/athlete_card.dart';
+import 'package:tamdan/ui/widgets/custom_date_picker.dart';
+import 'package:tamdan/ui/widgets/custom_dropdown.dart';
 import 'package:tamdan/ui/widgets/personal_info_card.dart';
 import 'package:tamdan/data/athlete_repository.dart';
 import 'package:tamdan/ui/widgets/ptofile_header.dart';
@@ -23,7 +25,6 @@ class _TrackingScreenState extends State<TrackingScreen> {
   DateTime _selectedDateTime = DateTime.now();
   final Set<String> _selectedAthleteIds = {};
 
-  // Athletes are loaded via repository; fallback to mock data if none present.
   List<Athlete> _athletes = [];
   bool _loaded = false;
 
@@ -42,7 +43,6 @@ class _TrackingScreenState extends State<TrackingScreen> {
         _athletes = mockAthletes;
       }
     } catch (e) {
-      // If repo fails for any reason, fall back to the bundled mock data
       _athletes = mockAthletes;
     }
     _loaded = true;
@@ -150,82 +150,47 @@ class _TrackingScreenState extends State<TrackingScreen> {
               ),
             ),
 
-          // Summary card (follows Athlete detail style)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: PersonalInfoCard(
-              infoPairs: {
-                'Session type': _selectedType != null
-                    ? _selectedType.toString().split('.').last
-                    : 'Not selected',
-                'Date/Time': _formatDateTime(_selectedDateTime),
-                'Athletes': '${_selectedAthleteIds.length} selected',
-              },
-            ),
-          ),
+            infoPairs: {
+              'Session type': _selectedType != null
+                  ? _selectedType.toString().split('.').last
+                  : 'Not selected',
+              'Date/Time': _formatDateTime(_selectedDateTime),
+              'Athletes': '${_selectedAthleteIds.length} selected',
+            },
+          )
+        ),
 
           const SizedBox(height: 12),
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'Select session type',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Wrap(
-              spacing: 8,
-              children: SessionType.values.map((t) {
-                final label = t.toString().split('.').last;
-                final display = label[0].toUpperCase() + label.substring(1);
-                return ChoiceChip(
-                  label: Text(
-                    display,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  selected: _selectedType == t,
-                  onSelected: (sel) =>
-                      setState(() => _selectedType = sel ? t : null),
-                  selectedColor: Theme.of(
-                    context,
-                  ).colorScheme.primary.withAlpha((0.12 * 255).round()),
-                );
-              }).toList(),
+            child: CustomDropdown<SessionType>(
+              label: 'Session Type',
+              hintText: 'Select session type',
+              value: _selectedType,
+              items: SessionType.values,
+              itemLabel: (type) {
+                switch (type) {
+                  case SessionType.technical: return 'Technical';
+                  case SessionType.strength: return 'Strength';
+                  case SessionType.physical: return 'Physical';
+                }
+              },
+              validator: (v) => v == null ? 'Please select a session type' : null,
+              onChanged: (v) => setState(() => _selectedType = v),
             ),
           ),
           const SizedBox(height: 8),
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Date/Time',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withAlpha((0.6 * 255).round()),
-                  ),
-                ),
-                OutlinedButton.icon(
-                  onPressed: _pickDateTime,
-                  icon: const Icon(Icons.calendar_today),
-                  label: Text(
-                    _formatDateTime(_selectedDateTime),
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ],
+            child: CustomDatePicker(
+              label: 'Date/Time',
+              value: _selectedDateTime,
+              onTap: _pickDateTime,
             ),
           ),
           const SizedBox(height: 8),

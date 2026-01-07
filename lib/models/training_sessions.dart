@@ -4,7 +4,7 @@ class TrainingSessions {
   final String athleteId;
   final String coachId;
   final String sessionType;
-  final String? trainingResultId; // optional foreign key
+  final String? trainingResultId;
 
   TrainingSessions({
     required this.id,
