@@ -1,11 +1,10 @@
-library;
 import 'package:flutter/material.dart';
 import 'package:tamdan/models/technical_sessions.dart';
 import 'package:tamdan/models/athlete.dart';
+import 'package:tamdan/ui/widgets/core_performance_section.dart';
 import 'package:tamdan/utils/mock_data.dart';
 import 'package:tamdan/ui/widgets/base_screen.dart';
 import 'package:tamdan/ui/widgets/athlete_header.dart';
-import 'package:tamdan/ui/widgets/metric_row.dart';
 import 'package:tamdan/ui/widgets/metric_section.dart';
 
 import 'package:tamdan/ui/widgets/coach_notes_field.dart';
@@ -24,7 +23,6 @@ class _TechnicalSessionScreenState extends State<TechnicalSessionScreen> {
   late List<Athlete> _athletes;
   int _currentIndex = 0;
 
-  // per-athlete state
   final Map<String, int> _speed = {};
   final Map<String, int> _balance = {};
   final Map<String, int> _control = {};
@@ -107,8 +105,6 @@ class _TechnicalSessionScreenState extends State<TechnicalSessionScreen> {
     }
 
     debugPrint('Saved technical session: ${session.id} for ${athlete.name}');
-
-    // Inform user of success and navigate to results
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: const Text('Technical session saved'),
@@ -116,7 +112,6 @@ class _TechnicalSessionScreenState extends State<TechnicalSessionScreen> {
     ));
 
     if (!mounted) return;
-    // Navigate to training results for the saved athlete
     Navigator.of(context).pushNamed(AppRoutes.trainingResults, arguments: {'athleteId': athlete.id});
   }
 
@@ -143,31 +138,13 @@ class _TechnicalSessionScreenState extends State<TechnicalSessionScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          MetricSection(
-            title: 'Core performance',
-            children: [
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MetricRow(label: 'Speed', value: _speed[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _speed[_athletes[_currentIndex].id] = v)),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MetricRow(label: 'Balance', value: _balance[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _balance[_athletes[_currentIndex].id] = v)),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  MetricRow(label: 'Control', value: _control[_athletes[_currentIndex].id] ?? 0, onChanged: (v) => setState(() => _control[_athletes[_currentIndex].id] = v)),
-                ],
-              ),
-            ],
+          CorePerformanceSection(
+            stamina: _speed[_athletes[_currentIndex].id] ?? 0,
+            flexibility: _balance[_athletes[_currentIndex].id] ?? 0,
+            reaction: _control[_athletes[_currentIndex].id] ?? 0,
+            onStaminaChanged: (v) => setState(() => _speed[_athletes[_currentIndex].id] = v),
+            onFlexibilityChanged: (v) => setState(() => _balance[_athletes[_currentIndex].id] = v),
+            onReactionChanged: (v) => setState(() => _control[_athletes[_currentIndex].id] = v),
           ),
           MetricSection(
             title: 'Kicking metrics',

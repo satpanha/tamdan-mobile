@@ -1,5 +1,4 @@
-/// Technical session model (presentation-friendly record).
-/// Note: keep models simple and immutable to make them easy to pass between UI and services.
+
 class TechnicalSessions {
   final String id; // pk
   final String trainingSessionId;
